@@ -1,5 +1,7 @@
 # goldengate-monkey
 
+Show buyout prices on product list
+
 # Install as a User Script - Tampermonkey
 Add https://tampermonkey.net/ into your browser
 
