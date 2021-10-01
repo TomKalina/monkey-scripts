@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Goldengate moneky
+// @name         Goldengate script
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  some better goldengate
