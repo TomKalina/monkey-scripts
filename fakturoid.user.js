@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fakturoid script
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Distribution of "price" attribute from url to invoice
 // @author       Tomas Kalina
 // @match        https://app.fakturoid.cz/*
@@ -16,5 +16,10 @@
     document.getElementById(
       "invoice_lines_attributes_0_unit_price_field"
     ).value = price;
+
+      document.getElementById(
+      "invoice_lines_attributes_0_unit_price"
+    ).value = price;
+
   }
 })();
