@@ -48,7 +48,8 @@
     var sellPrice = document.createTextNode(db[key.replace(regex, "")]);
 
     const buyPriceNode = coinPrices[index];
-    const buyPrice = coinsPrice[index].getElementsByTagName("strong")[0].outerText;
+    const buyPrice =
+      coinPrices[index].getElementsByTagName("strong")[0].outerText;
 
     buyPriceNode.appendChild(document.createElement("br"));
     buyPriceNode.appendChild(sellPrice);
