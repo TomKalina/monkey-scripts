@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 console.log("Fakturoid script loaded");
-
+let intervalID;
 (async function () {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -20,22 +20,29 @@ console.log("Fakturoid script loaded");
       "invoice_lines_attributes_0_unit_price_field"
     ).value = price;
 
-    document.getElementById(
-      "invoice_lines_attributes_0_unit_price"
-    ).value = price;
-
+    document.getElementById("invoice_lines_attributes_0_unit_price").value =
+      price;
   }
 
-  const message_subject = document.getElementById("message_subject");
-  if (message_subject) {
-    message_subject.value = `Faktura - ${getInvoiceMonth()} ${getInvoiceYear()}`;
-  }
+  intervalID = setInterval(setMessageSubject, 1000);
 })();
 
+function setMessageSubject() {
+  console.log("setMessageSubject")
+  const message_subject = document.getElementById("message_subject");
+  if (message_subject && String(message_subject.value).includes("TODO")) {
+    message_subject.value = `Faktura - ${getInvoiceMonth()} ${getInvoiceYear()}`;
+    // clearInterval(intervalID);
+  }
+}
 
 function getInvoiceYear() {
   const now = new Date();
-  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  const prevMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  );
 
   if (now.getMonth() < 15) {
     return prevMonth.getFullYear();
@@ -44,10 +51,13 @@ function getInvoiceYear() {
   }
 }
 
-
 function getInvoiceMonth() {
   const now = new Date();
-  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  const prevMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  );
   console.log(now.getMonth());
   if (now.getMonth() < 15) {
     return getCurrentMonth(prevMonth);
@@ -70,7 +80,7 @@ function getCurrentMonth(date) {
     "Září",
     "Říjen",
     "Listopad",
-    "Prosinec"
+    "Prosinec",
   ];
 
   return monthNames[date.getMonth()];
