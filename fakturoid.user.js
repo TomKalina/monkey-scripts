@@ -28,7 +28,6 @@ let intervalID;
 })();
 
 function setMessageSubject() {
-  console.log("setMessageSubject")
   const message_subject = document.getElementById("message_subject");
   if (message_subject && String(message_subject.value).includes("TODO")) {
     message_subject.value = `Faktura - ${getInvoiceMonth()} ${getInvoiceYear()}`;
@@ -59,10 +58,10 @@ function getInvoiceMonth() {
     now.getDate()
   );
   console.log(now.getMonth());
-  if (now.getMonth() < 15) {
-    return getCurrentMonth(prevMonth);
-  } else {
+  if (now.getDay() < 15) {
     return getCurrentMonth(now);
+  } else {
+    return getCurrentMonth(prevMonth);
   }
 }
 
