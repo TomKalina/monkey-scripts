@@ -35,14 +35,14 @@ function setMessageSubject() {
   }
 }
 
-function getInvoiceYear() {
-  const now = new Date();
-  const prevMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() - 1,
-    now.getDate()
-  );
+const now = new Date();
+const prevMonth = new Date(
+  now.getFullYear(),
+  now.getMonth() - 1,
+  now.getDate()
+);
 
+function getInvoiceYear() {
   if (now.getMonth() < 15) {
     return prevMonth.getFullYear();
   } else {
@@ -51,13 +51,6 @@ function getInvoiceYear() {
 }
 
 function getInvoiceMonth() {
-  const now = new Date();
-  const prevMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() - 1,
-    now.getDate()
-  );
-  console.log(now.getMonth());
   if (now.getDay() < 15) {
     return getCurrentMonth(now);
   } else {
@@ -66,7 +59,6 @@ function getInvoiceMonth() {
 }
 
 function getCurrentMonth(date) {
-  console.log(date);
   const monthNames = [
     "Leden",
     "Únor",
@@ -82,5 +74,5 @@ function getCurrentMonth(date) {
     "Prosinec",
   ];
 
-  return monthNames[date.getMonth()];
+  return monthNames[date.getMonth()-1];
 }
