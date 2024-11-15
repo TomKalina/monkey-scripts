@@ -1,0 +1,16 @@
+PUT https://api.distilld.io/search/filtered
+Content-Type: application/json
+
+{
+  "searchQuery": "Clyde May's Straight Bourbon 0,7 l 46%",
+  "tastingProfile": [],
+  "whiskyType": [],
+  "price": {
+    "values": ["0", "900+"]
+  },
+  "country": [],
+  "region": [],
+  "rating": "",
+  "sort": "_score-desc",
+  "page": 1
+}
