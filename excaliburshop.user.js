@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         excaliburshop script
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Rating of whisky
 // @author       Tomas Kalina
 // @match        https://www.excaliburshop.com/*
@@ -16,8 +16,6 @@
 
   console.log("excaliburshop script loaded");
 
-  // load all items with classname heading and save to array
-
   /**
    * @type {HTMLCollectionOf<Div>}
    */
@@ -31,34 +29,19 @@
     if (rating) {
       const ratingElement = document.createElement("div");
       let html = "";
-      if(rating.rating > 0) {
-           html = `${rating.rating}: ${getStarRating(rating.rating)}`;
+      if (rating.rating > 0) {
+        html = `${rating.rating}: ${getStarRating(rating.rating)}`;
       }
-      
+
       if (rating.link) {
         html += `<a href="https://distilld.io/whisky/${rating.link}" target="_blank">distilld.io</a>`;
 
         const thumbnailLink = `https://static.distilld.io/thumbnail/${rating.thumbnail}.webp`;
-        const thumbnailImage = document.createElement("img");
-        thumbnailImage.src = thumbnailLink;
-        thumbnailImage.style.display = "none";
-        thumbnailImage.style.position = "absolute";
-        thumbnailImage.style.zIndex = "1000";
-        thumbnailImage.style.width = "200px";
-        thumbnailImage.style.height = "200px";
-        document.body.appendChild(thumbnailImage);
 
-        ratingElement.addEventListener("mouseover", () => {
-          thumbnailImage.style.display = "block";
-          const rect = ratingElement.getBoundingClientRect();
-          thumbnailImage.style.top = `${rect.top + window.scrollY}px`;
-          thumbnailImage.style.left = `${rect.right + window.scrollX}px`;
-        });
-
-        ratingElement.addEventListener("mouseout", () => {
-          thumbnailImage.style.display = "none";
-        });
+        // Načtení obrázku pomocí Base64
+        loadImage(thumbnailLink, ratingElement)
       }
+
       ratingElement.innerHTML = html;
       item.parentNode.insertBefore(ratingElement, item.nextSibling);
     }
@@ -66,9 +49,9 @@
 })();
 
 /**
- *
+ * Extrahuje hodnocení ze získaných dat.
  * @param {*} data
- * @returns {{rating: string, link: string| undefined,thumbnail: string| undefined}| undefined} The rating
+ * @returns {{rating: string, link: string| undefined,thumbnail: string| undefined}| undefined} Hodnocení
  */
 function getRating(data) {
   const id = data?.hits?.hits[0]?._id;
@@ -81,9 +64,9 @@ function getRating(data) {
 }
 
 /**
- * Converts a numeric rating to a star rating with half-stars.
- * @param {number} rating The numeric rating.
- * @returns {string} The star rating as a string.
+ * Převádí číselné hodnocení na hvězdičkové hodnocení.
+ * @param {number} rating Číselné hodnocení.
+ * @returns {string} Hodnocení jako hvězdičky.
  */
 function getStarRating(rating) {
   const fullStars = Math.floor(rating);
@@ -93,8 +76,47 @@ function getStarRating(rating) {
   return "★".repeat(fullStars) + (halfStar ? "½" : "") + "☆".repeat(emptyStars);
 }
 
+function loadImage(thumbnailLink, ratingElement) {
+  GM_xmlhttpRequest({
+    method: "GET",
+    url: thumbnailLink,
+    responseType: "arraybuffer",
+    onload: function (response) {
+      const base64Image = btoa(
+        new Uint8Array(response.response).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+
+      const dataUrl = `data:image/webp;base64,${base64Image}`;
+
+      const thumbnailImage = document.createElement("img");
+      thumbnailImage.src = dataUrl;
+      thumbnailImage.style.display = "none";
+      thumbnailImage.style.position = "absolute";
+      thumbnailImage.style.zIndex = "1000";
+      document.body.appendChild(thumbnailImage);
+
+      ratingElement.addEventListener("mouseover", () => {
+        thumbnailImage.style.display = "block";
+        const rect = ratingElement.getBoundingClientRect();
+        thumbnailImage.style.top = `${rect.top + window.scrollY + 50}px`;
+        thumbnailImage.style.left = `${rect.right + window.scrollX - 200}px`;
+      });
+
+      ratingElement.addEventListener("mouseout", () => {
+        thumbnailImage.style.display = "none";
+      });
+    },
+    onerror: function (error) {
+      console.error("Failed to load thumbnail:", error);
+    },
+  });
+}
+
 /**
- * Načte hodnocení whisky ze vzdáleného API
+ * Načítá hodnocení whisky ze vzdáleného API.
  * @param {string} name Název whisky
  * @returns {Promise<Object>} Data z API
  */
