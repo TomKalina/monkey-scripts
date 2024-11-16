@@ -14,3 +14,14 @@ Content-Type: application/json
   "sort": "_score-desc",
   "page": 1
 }
+
+###
+
+POST https://api.whiskybase.com/api/v1/search
+Content-Type: application/json
+
+{
+	"query": "Benriach Triple Distilled",
+	"perpage": 2,
+	"page": 1
+}
