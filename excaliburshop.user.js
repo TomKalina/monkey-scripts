@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         excaliburshop script
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Rating of whisky
 // @author       Tomas Kalina
 // @match        https://www.excaliburshop.com/*
@@ -17,7 +17,7 @@
   console.log("excaliburshop script loaded");
 
   /**
-   * @type {HTMLCollectionOf<Div>}
+   * @type {HTMLCollectionOf<HTMLDivElement>}
    */
   const items = document.getElementsByClassName("heading");
 
@@ -28,19 +28,20 @@
     const bottle = getBottleBOject(data);
 
     const ratingElement = document.createElement("div");
-    let html = "";
+    ratingElement.style.position = "absolute";
+    ratingElement.style.zIndex = "1";
+    let html = "Whiskybase";
     if (bottle) {
       if (bottle.rating > 0) {
-        html = `${bottle.rating}`;
-        // html += `: ${getStarRating(bottle.rating)}`;
+        html += `: ${bottle.rating}`;
       }
 
-      html += `<a href="https://www.whiskybase.com/whiskies/whisky/${bottle.id}" target="_blank">detail</a>`;
-      loadImage(bottle.photo?.normal, ratingElement, data?.data[0]);
+      html += `<br/><a href="https://www.whiskybase.com/whiskies/whisky/${bottle.id}" target="_blank">detail</a>`;
+      createDetail(ratingElement, data?.data[0]);
     }
-    html += ` <a href="https://www.whiskybase.com/search-v1/?q=${betterName}" target="_blank">search</a>`;
+    html += `<br/><a href="https://www.whiskybase.com/search-v1/?q=${betterName}" target="_blank">search (${data.total})</a>`;
     ratingElement.innerHTML = html;
-    item.parentNode.insertBefore(ratingElement, item.nextSibling);
+    item.parentNode.insertBefore(ratingElement, item.parentNode.firstChild);
   }
 })();
 
@@ -50,7 +51,6 @@
  * @returns {DataView} Hodnocení
  */
 function getBottleBOject(data) {
-  console.log(data);
   if (data?.data.length === 0) {
     return undefined;
   }
@@ -59,12 +59,12 @@ function getBottleBOject(data) {
 
 /**
  *
- * @param {string} thumbnailLink
- * @param {string} ratingElement
+ * @param {any} ratingElement
  * @param {string} name
  * @param {WhiskyData} data
  */
-function loadImage(thumbnailLink, ratingElement, data) {
+function createDetail(ratingElement, data) {
+  const thumbnailLink = data?.photo?.normal;
   GM_xmlhttpRequest({
     method: "GET",
     url: thumbnailLink,
@@ -76,9 +76,7 @@ function loadImage(thumbnailLink, ratingElement, data) {
           ""
         )
       );
-
       const dataUrl = `data:image/webp;base64,${base64Image}`;
-
       const detailDiv = document.createElement("div");
       detailDiv.style.display = "none";
       detailDiv.style.position = "absolute";
@@ -87,7 +85,7 @@ function loadImage(thumbnailLink, ratingElement, data) {
       detailDiv.style.border = "1px solid black";
 
       const title = document.createElement("div");
-      title.innerHTML = data?.name;
+      title.innerHTML = data?.suggest;
       detailDiv.appendChild(title);
 
       const image = document.createElement("img");
@@ -99,7 +97,7 @@ function loadImage(thumbnailLink, ratingElement, data) {
       ratingElement.addEventListener("mouseover", () => {
         detailDiv.style.display = "block";
         const rect = ratingElement.getBoundingClientRect();
-        detailDiv.style.top = `${rect.top + window.scrollY + 50}px`;
+        detailDiv.style.top = `${rect.top + window.scrollY + 80}px`;
         detailDiv.style.left = `${rect.right + window.scrollX - 200}px`;
       });
 
@@ -119,13 +117,23 @@ function loadImage(thumbnailLink, ratingElement, data) {
  * @returns {string}
  */
 function makeBetterName(name) {
-  const betterName = name
-    .split(" ")
+  const nameArray = name.split(" ");
+
+  let betterName = nameArray
     .filter(
-      (word) => word.length >= 3 && !/\d/.test(word) && !/[áí]/i.test(word)
+      (word) => word.length >= 3 && !/\d/.test(word) && !/[áí%]/i.test(word)
     )
     .join(" ");
- 
+  const yaerOld = nameArray.find((word) => /\b(\d{1,2})Y\b/g.test(word));
+  if (yaerOld) {
+    betterName += " " + yaerOld.replace(/\b(\d{1,2})Y\b/g, "$1-year-old");
+  }
+
+  const size = name.split(" ").find((word) => /\b(\d{1,2})L\b/g.test(word));
+  if (size) {
+    betterName += " " + size.replace(/\b(\d{1,2})L\b/g, "$1L");
+  }
+
   console.log("name:", name, "betterName:", betterName);
 
   return betterName;
