@@ -1,27 +1,47 @@
 // ==UserScript==
-// @name         Github Custom CSS
-// @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Globally modify CSS for specific GitHub elements
-// @author       Tomas Kalina
-// @match        https://github.com/*
-// @grant        GM_addStyle
-// @run-at       document-start
+// @name         GitHub Project Column Resizer
+// @namespace    https://github.com/
+// @version      1.2
+// @description  Změní šířku sloupců na 200px v GitHub Projects
+// @author       ChatGPT
+// @match        https://github.com/orgs/shoptet/projects/*
+// @grant        none
 // ==/UserScript==
 
 (function() {
-    "use strict";
+    'use strict';
+    console.log('GitHub Project Column Resizer is running...');
+    function resizeColumns() {
+        const columns = document.querySelectorAll('[data-board-column]');
+        columns.forEach(col => {
+            col.style.minWidth = '200px';
+        });
+    }
 
-    // Add global CSS styles for specific elements
-    GM_addStyle(`
-        [data-testid="filter-actions-save-changes-button"] {
-            display: none !important;
-        }
+    function removeSaveButton() {
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            const span = button.querySelector('span');
+            if (span && span.textContent.trim() === "Save") {
+                button.remove();
+            }
+        });
+    }
 
-        [data-testid="board-view-column"] {
-            min-width: 200px !important;
-        }
-    `);
+    function runAllModifications() {
+        resizeColumns();
+        removeSaveButton();
+    }
 
-    console.log("Custom CSS for GitHub applied");
+    // Spustí se po načtení stránky
+    window.addEventListener('load', () => {
+        setTimeout(runAllModifications, 2000); // Počká na načtení sloupců a tlačítek
+    });
+
+    // Sleduje změny na stránce a upravuje sloupce + tlačítka dynamicky
+    const observer = new MutationObserver(() => {
+        runAllModifications();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 })();
