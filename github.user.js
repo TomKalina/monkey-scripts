@@ -30,7 +30,7 @@
 
     function runAllModifications() {
         resizeColumns();
-        removeSaveButton();
+        // removeSaveButton();
     }
 
     // Spustí se po načtení stránky
