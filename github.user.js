@@ -30,7 +30,9 @@
 
     function runAllModifications() {
         resizeColumns();
-        // removeSaveButton();
+        if (window.location.href.includes('shoptet/projects')){
+            removeSaveButton();
+        }
     }
 
     // Spustí se po načtení stránky
