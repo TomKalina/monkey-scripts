@@ -42,6 +42,10 @@ const prevMonth = new Date(
   now.getDate()
 );
 
+/**
+ * 
+ * @returns {number} Invoice year 
+ */
 function getInvoiceYear() {
   if (now.getMonth() < 15) {
     return prevMonth.getFullYear();
@@ -50,6 +54,10 @@ function getInvoiceYear() {
   }
 }
 
+/**
+ * 
+ * @returns {string} Month name in Czech
+ */
 function getInvoiceMonth() {
   if (now.getDay() < 15) {
     return getCurrentMonth(now);
@@ -58,6 +66,11 @@ function getInvoiceMonth() {
   }
 }
 
+/**
+ * 
+ * @param Date date 
+ * @returns {string} Month name in Czech
+ */
 function getCurrentMonth(date) {
   const monthNames = [
     "Leden",
@@ -74,5 +87,5 @@ function getCurrentMonth(date) {
     "Prosinec",
   ];
 
-  return monthNames[date.getMonth()-1];
+  return monthNames[date.getMonth()];
 }
