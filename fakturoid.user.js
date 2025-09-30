@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Fakturoid script
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.4
 // @description  Distribution of "price" attribute from url to invoice
 // @author       Tomas Kalina
 // @match        https://app.fakturoid.cz/*
 // @require      file:///Users/tom/dev/monkey-scripts/fakturoid.user.js
 // @grant        none
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=fakturoid.cz
 // ==/UserScript==
 
 console.log("Fakturoid script loaded");
@@ -16,12 +17,18 @@ let intervalID;
   const urlParams = new URLSearchParams(queryString);
   const price = urlParams.get("price");
   if (price) {
-    document.getElementById(
+    const priceField = document.getElementById(
       "invoice_lines_attributes_0_unit_price_field"
-    ).value = price;
-
-    document.getElementById("invoice_lines_attributes_0_unit_price").value =
-      price;
+    );
+    const unitPriceField = document.getElementById("invoice_lines_attributes_0_unit_price");
+    
+    if (priceField) {
+      priceField.value = price;
+    }
+    
+    if (unitPriceField) {
+      unitPriceField.value = price;
+    }
   }
 
   intervalID = setInterval(setMessageSubject, 1000);
@@ -47,7 +54,7 @@ const prevMonth = new Date(
  * @returns {number} Invoice year 
  */
 function getInvoiceYear() {
-  if (now.getMonth() < 15) {
+  if (now.getDate() < 15) {
     return prevMonth.getFullYear();
   } else {
     return now.getFullYear();
@@ -59,10 +66,10 @@ function getInvoiceYear() {
  * @returns {string} Month name in Czech
  */
 function getInvoiceMonth() {
-  if (now.getDay() < 15) {
-    return getCurrentMonth(now);
-  } else {
+  if (now.getDate() < 15) {
     return getCurrentMonth(prevMonth);
+  } else {
+    return getCurrentMonth(now);
   }
 }
 
